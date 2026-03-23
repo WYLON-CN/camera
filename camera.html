@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1080P 摄像头测试</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    background: #222;
+    color: white;
+    text-align: center;
+    padding: 10px;
+  }
+  #video {
+    width: 100%;
+    max-width: 500px;
+    background: #000;
+    border: 2px solid #fff;
+  }
+  #canvas {
+    display: none;
+  }
+  .btn {
+    margin-top: 15px;
+    padding: 12px 24px;
+    font-size: 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+  }
+  #photoResult {
+    margin-top: 15px;
+  }
+  #photo {
+    width: 100%;
+    max-width: 500px;
+    border: 2px solid #fff;
+  }
+</style>
+</head>
+
+<body>
+  <h3>1080P 摄像头预览</h3>
+  <video id="video" autoplay playsinline></video>
+
+  <div>
+    <button class="btn" onclick="takePhoto()">拍照</button>
+  </div>
+
+  <div id="photoResult">
+    <img id="photo" alt="拍照结果">
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const photo = document.getElementById('photo');
+const ctx = canvas.getContext('2d');
+
+// 优先 1080P，手机不支持会自动降级
+const constraints = {
+  video: {
+    width: { ideal: 1920, max: 1920 },
+    height: { ideal: 1080, max: 1080 },
+    facingMode: "environment" // 优先后置摄像头
+  },
+  audio: false
+};
+
+// 启动摄像头
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = stream;
+  } catch (err) {
+    alert("调用摄像头失败：" + err.message);
+    console.error(err);
+  }
+}
+
+// 拍照
+function takePhoto() {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // 显示照片
+  photo.src = canvas.toDataURL('image/png');
+}
+
+// 页面加载就启动
+window.addEventListener('load', startCamera);
+</script>
+</body>
+</html>
